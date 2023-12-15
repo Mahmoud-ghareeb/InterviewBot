@@ -9,8 +9,8 @@ Install the following packages
 
 ```sh
 pip install streamlit
-pip install streamlit_custom_chat
-pip install streamlit_custom_input
+python -m pip install --index-url https://test.pypi.org/simple/ --no-deps streamlit_custom_chat
+python -m pip install --index-url https://test.pypi.org/simple/ --no-deps streamlit_custom_input
 pip install key_generator
 ```
 
