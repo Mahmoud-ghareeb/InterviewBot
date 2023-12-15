@@ -1,6 +1,6 @@
 # streamlit-interview-ai-app
 
-Streamlit app for an llm that helps prepare you for data analysit interview
+Streamlit app for an llm that helps prepare you for data analyst interview
 
 ## Run instructions
 
