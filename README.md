@@ -1,21 +1,23 @@
-# streamlit-custom-component
+# streamlit-interview-ai-app
 
-Streamlit component that allows you to do X
+Streamlit app for an llm that helps prepare you for data analysit interview
 
-## Installation instructions
+## Run instructions
+
+Activate virtual environment
+Install the following packages
 
 ```sh
-pip install streamlit-custom-component
+pip install streamlit
+pip install streamlit_custom_chat
+pip install streamlit_custom_input
+pip install key_generator
 ```
 
 ## Usage instructions
 
-```python
-import streamlit as st
+After activating the virtual environment run the following command
 
-from my_component import my_component
-
-value = my_component()
-
-st.write(value)
+```sh
+streamlit run app.py
 ```
