@@ -8,7 +8,7 @@ Activate virtual environment
 Install the following packages
 
 ```sh
-pip install streamlit
+pip install -r requirements.txt
 python -m pip install --index-url https://test.pypi.org/simple/ --no-deps streamlit_custom_chat
 python -m pip install --index-url https://test.pypi.org/simple/ --no-deps streamlit_custom_input
 pip install key_generator
