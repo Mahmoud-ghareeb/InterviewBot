@@ -1,9 +1,7 @@
-python
-streamlit
 openai
+streamlit
 yaml
 python-dotenv
-openai
 numpy
 pandas
 json
