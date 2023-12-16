@@ -3,3 +3,4 @@ venv2
 custom_chat_bubble
 custom_chat_input
 node_modules
+.env
