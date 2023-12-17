@@ -4,3 +4,5 @@ custom_chat_bubble
 custom_chat_input
 node_modules
 .env
+testenv
+key.py
