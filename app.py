@@ -68,7 +68,11 @@ set_page_container_style()
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
+if "botTyping" not in st.session_state:
+    st.session_state.botTyping = False
+if "userAnswer" not in st.session_state:
+    st.session_state.userAnswer = ""
+    
 # after getting response from bot, add it to session and refresh
 
 
@@ -90,6 +94,8 @@ if len(st.session_state.messages) == 0:
         {"role": "assistant", "content": config['openning_message'], "key": 0})
     st.session_state.messages.append(
         {"role": "assistant", "content": new_question, "key": 1})
+    
+
 
 col1, col2 = st.columns([2, 13])
 
@@ -103,26 +109,37 @@ with col1:
 with col2:
     # component that displays the messages
     ChatContainer(messages=st.session_state.messages, key="chatcontainer")
-
-    # if st.button(label="assistant", key="assistant"):
-    #     key = generate()
-    #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
-    #     refresh('assistant')
-
-    if answer := ChatInput(initialValue="", key="inputButton"):
-        key = generate()
-
-        # Add user message to chat history
-        st.session_state.messages.append(
-            {"role": "user", "content": answer, "key": "user-"+key.get_key()})
-
-        content = '{question: '+new_question+', answer: '+answer+'}'
+    
+    key = generate()
+    
+    if st.session_state.botTyping:
+        content = '{question: '+new_question+', answer: '+st.session_state.userAnswer+'}'
         evaluation = get_evaluation(content)
+        
         st.session_state.messages.append(
             {"role": "assistant", "content": evaluation['eval'], "key": "assistant-"+key.get_key()})
 
         new_question = get_random_question()
+        
         st.session_state.messages.append(
             {"role": "assistant", "content": new_question, "key": "assistant-"+key.get_key()})
+        
+        st.session_state.botTyping=False
+        
+        refresh('chatcontainer')
+        # if st.button(label="assistant", key="assistant"):
+        #     key = generate()
+        #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
+        #     refresh('assistant')
 
+    if answer := ChatInput(initialValue="", key="inputButton"):
+        # key = generate()
+
+        # Add user message to chat history
+        st.session_state.messages.append(
+            {"role": "user", "content": answer, "key": "user-"+key.get_key()})
+        st.session_state.userAnswer=answer
+        st.session_state.botTyping=True
         refresh('inputButton')
+
+       
