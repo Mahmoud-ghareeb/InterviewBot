@@ -9,6 +9,7 @@ from openai import OpenAI
 import yaml
 import json
 import os
+import time
 from dotenv import load_dotenv
 
 
@@ -26,6 +27,12 @@ client = OpenAI(
 df = pd.read_csv('./data/star_questions.csv')
 
 
+st.set_page_config(layout="wide")
+
+set_bg_hack("assets/images/pastel3.jpg")
+
+set_page_container_style()
+
 def get_evaluation(content: str) -> dict:
     """
     Evaluate if the provided answer follows the STAR methodology
@@ -33,7 +40,12 @@ def get_evaluation(content: str) -> dict:
     :param content: {'question': the question, 'answer': the answer}
     :return: {"eval": your detailed evaluation of the answer}
     """
-    response = client.chat.completions.create(
+    key = generate()
+    
+    st.session_state.messages.append(
+            {"role": "assistant", "content": "", "key": "assistant-"+key.get_key()})
+        
+    st.session_state.response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         temperature=0,
         response_format={"type": "json_object"},
@@ -41,10 +53,31 @@ def get_evaluation(content: str) -> dict:
             {"role": "system",
               "content": config['prompts']['evaluation_prompt']},
             {"role": "user", "content": content}
-        ]
+        ],
+        stream=True  # this time, we set stream=True
     )
+    
+    st.session_state.rateAnswer=False
+    
+    st.session_state.responding = True
+    
+    refresh("chatcontainer")
+    # messageFromChatBot()
+    
 
-    return json.loads(response.choices[0].message.content)
+# a ChatCompletion request
+    # response = client.chat.completions.create(
+    #     model='gpt-3.5-turbo',
+    #     messages=[
+    #         {'role': 'user', 'content': "What's 1+1? Answer in one word."}
+    #     ],
+    #     temperature=0,
+    #     stream=True  # this time, we set stream=True
+    # )
+
+    
+
+    # return json.loads(response.choices[0].message.content)
 
 
 def get_random_question():
@@ -59,32 +92,41 @@ def get_random_question():
     return data['Question']
 
 
-st.set_page_config(layout="wide")
 
-set_bg_hack("assets/images/pastel3.jpg")
+def messageFromChatBot():
+    """
+    get each chunk streamed from the API and add it to the message then refresh except for the first
+    4 and last 2 chunks which are these token {eval:" "}
 
-set_page_container_style()
+    :return: nothing 
+    """
+    for chunk in st.session_state.response:
+        if chunk.choices[0].delta.content is not None:
+            if st.session_state.skip>4:
+                st.session_state.messages[-1]["content"]+=chunk.choices[0].delta.content
+                time.sleep(0.05)
+                refresh("chatcontainer")
+            else:
+                st.session_state.skip+=1
+    st.session_state.messages[-1]["content"]=st.session_state.messages[-1]["content"][:-1]
+    st.session_state.messages[-1]["content"]=st.session_state.messages[-1]["content"][:-1]
+
+
 
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "botTyping" not in st.session_state:
-    st.session_state.botTyping = False
+if "rateAnswer" not in st.session_state:
+    st.session_state.rateAnswer = False
+if "getQuestion" not in st.session_state:
+    st.session_state.getQuestion = False
 if "userAnswer" not in st.session_state:
     st.session_state.userAnswer = ""
+if "responding" not in st.session_state:
+    st.session_state.responding = False
+if "skip" not in st.session_state:
+    st.session_state.skip = 0
     
-# after getting response from bot, add it to session and refresh
-
-
-def messageFromChatBot(message):
-    key = generate()
-    st.session_state.messages.append(
-        {"role": "assistant", "content": message, "key": "assistant-"+key.get_key()})
-    refresh('assistant')
-
-# st.sidebar.header("header")
-# st.sidebar.subheader(‘1.please chose which app you want to operate’)
-
 
 new_question = get_random_question()
 
@@ -109,37 +151,55 @@ with col1:
 with col2:
     # component that displays the messages
     ChatContainer(messages=st.session_state.messages, key="chatcontainer")
-    
     key = generate()
-    
-    if st.session_state.botTyping:
+    if st.session_state.responding:
+        #try not calling it every rerun
+        messageFromChatBot()
+        st.session_state.responding = False
+        st.session_state.getQuestion = True
+        st.session_state.skip=0
+        
+    elif st.session_state.rateAnswer:
         content = '{question: '+new_question+', answer: '+st.session_state.userAnswer+'}'
         evaluation = get_evaluation(content)
         
-        st.session_state.messages.append(
-            {"role": "assistant", "content": evaluation['eval'], "key": "assistant-"+key.get_key()})
-
+        # st.session_state.messages.append(
+        #     {"role": "assistant", "content": evaluation['eval'], "key": "assistant-"+key.get_key()})
+        
+        st.session_state.userAnswer=""
+        
+        st.session_state.rateAnswer = False
+        
+        st.session_state.getQuestion = True
+        
+        refresh('chatcontainer')
+        # st.session_state.botTyping=False
+        
+        # if st.button(label="assistant", key="assistant"):
+        #     key = generate()
+        #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
+        #     refresh('assistant')
+        
+    if st.session_state.getQuestion:
         new_question = get_random_question()
         
         st.session_state.messages.append(
             {"role": "assistant", "content": new_question, "key": "assistant-"+key.get_key()})
         
-        st.session_state.botTyping=False
-        
+        st.session_state.getQuestion = False
         refresh('chatcontainer')
-        # if st.button(label="assistant", key="assistant"):
-        #     key = generate()
-        #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
-        #     refresh('assistant')
-
+        
     if answer := ChatInput(initialValue="", key="inputButton"):
         # key = generate()
 
         # Add user message to chat history
         st.session_state.messages.append(
             {"role": "user", "content": answer, "key": "user-"+key.get_key()})
+        
         st.session_state.userAnswer=answer
-        st.session_state.botTyping=True
+        
+        st.session_state.rateAnswer=True
+        
         refresh('inputButton')
 
        
