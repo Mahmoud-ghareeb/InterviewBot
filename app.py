@@ -33,6 +33,17 @@ set_bg_hack("assets/images/pastel3.jpg")
 
 set_page_container_style()
 
+titlecol1, titlecol2, titlecol3 = st.columns([8,5,3])
+
+with titlecol1:
+    st.markdown('#')
+
+with titlecol2:
+    st.title('Mentor Bot')
+    
+with titlecol3:
+    st.markdown('#')  
+
 def get_evaluation(content: str) -> dict:
     """
     Evaluate if the provided answer follows the STAR methodology
@@ -54,7 +65,7 @@ def get_evaluation(content: str) -> dict:
               "content": config['prompts']['evaluation_prompt']},
             {"role": "user", "content": content}
         ],
-        stream=True  # this time, we set stream=True
+        stream=True 
     )
     
     st.session_state.rateAnswer=False
@@ -62,22 +73,6 @@ def get_evaluation(content: str) -> dict:
     st.session_state.responding = True
     
     refresh("chatcontainer")
-    # messageFromChatBot()
-    
-
-# a ChatCompletion request
-    # response = client.chat.completions.create(
-    #     model='gpt-3.5-turbo',
-    #     messages=[
-    #         {'role': 'user', 'content': "What's 1+1? Answer in one word."}
-    #     ],
-    #     temperature=0,
-    #     stream=True  # this time, we set stream=True
-    # )
-
-    
-
-    # return json.loads(response.choices[0].message.content)
 
 
 def get_random_question():
@@ -104,7 +99,7 @@ def messageFromChatBot():
         if chunk.choices[0].delta.content is not None:
             if st.session_state.skip>4:
                 st.session_state.messages[-1]["content"]+=chunk.choices[0].delta.content
-                time.sleep(0.05)
+                time.sleep(0.005)
                 refresh("chatcontainer")
             else:
                 st.session_state.skip+=1
@@ -113,32 +108,36 @@ def messageFromChatBot():
 
 
 
-# Initialize chat history
+# Initialize session variables
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
 if "rateAnswer" not in st.session_state:
     st.session_state.rateAnswer = False
+    
 if "getQuestion" not in st.session_state:
     st.session_state.getQuestion = False
+    
 if "userAnswer" not in st.session_state:
     st.session_state.userAnswer = ""
+    
 if "responding" not in st.session_state:
     st.session_state.responding = False
+    
 if "skip" not in st.session_state:
     st.session_state.skip = 0
-    
 
+# get a question to ask the user
 new_question = get_random_question()
 
-# if there are no messages in the session add this one
+# if there are no messages in the session add
 if len(st.session_state.messages) == 0:
     st.session_state.messages.append(
         {"role": "assistant", "content": config['openning_message'], "key": 0})
+    
     st.session_state.messages.append(
         {"role": "assistant", "content": new_question, "key": 1})
     
-
-
 col1, col2 = st.columns([2, 13])
 
 with col1:
@@ -151,54 +150,74 @@ with col1:
 with col2:
     # component that displays the messages
     ChatContainer(messages=st.session_state.messages, key="chatcontainer")
+    
     key = generate()
+    
+    # check if the agent is still streaming
     if st.session_state.responding:
-        #try not calling it every rerun
+        
+        # call function that recieves the agent stream
         messageFromChatBot()
+        
+        # after the streaming is done reset the responding falg
         st.session_state.responding = False
+        
+        # change the flag to true to make the agent ask a new question
         st.session_state.getQuestion = True
-        st.session_state.skip=0
         
+        #reset the number of tokens to skip
+        st.session_state.skip = 0
+        
+    # check if the user submitted an answer to review
     elif st.session_state.rateAnswer:
+        
+        # prepare the prompt for the agent
         content = '{question: '+new_question+', answer: '+st.session_state.userAnswer+'}'
-        evaluation = get_evaluation(content)
         
-        # st.session_state.messages.append(
-        #     {"role": "assistant", "content": evaluation['eval'], "key": "assistant-"+key.get_key()})
+        # call the function that sends the prompt to the agent
+        get_evaluation(content)
         
+        # reset user answer
         st.session_state.userAnswer=""
         
+        # reset rate flag
         st.session_state.rateAnswer = False
         
+        # make the question flag true to fetch a new question
         st.session_state.getQuestion = True
         
         refresh('chatcontainer')
-        # st.session_state.botTyping=False
         
-        # if st.button(label="assistant", key="assistant"):
-        #     key = generate()
-        #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
-        #     refresh('assistant')
-        
+    # check if a new question should be displayed
     if st.session_state.getQuestion:
+        
+        # call function to get a new question
         new_question = get_random_question()
         
+        # add the new question to the session state
         st.session_state.messages.append(
             {"role": "assistant", "content": new_question, "key": "assistant-"+key.get_key()})
         
+        # reset question flag
         st.session_state.getQuestion = False
+        
         refresh('chatcontainer')
         
+    # recieve input from the user
     if answer := ChatInput(initialValue="", key="inputButton"):
-        # key = generate()
-
-        # Add user message to chat history
+        
+        # add user message to chat history
         st.session_state.messages.append(
             {"role": "user", "content": answer, "key": "user-"+key.get_key()})
         
-        st.session_state.userAnswer=answer
+        st.session_state.userAnswer = answer
         
-        st.session_state.rateAnswer=True
+        # make the rate flag true to send the question to the agent
+        st.session_state.rateAnswer = True
+        
+        # reset question and responding flags
+        st.session_state.getQuestion = False
+        st.session_state.responding = False
         
         refresh('inputButton')
 
