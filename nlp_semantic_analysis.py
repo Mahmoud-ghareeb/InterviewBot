@@ -5,7 +5,6 @@ import openai
 import spacy
 
 # Set up your OpenAI API key
-# openai.api_key = "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"
 
 # Load the spaCy language model for semantic analysis
 nlp = spacy.load("en_core_web_sm")
