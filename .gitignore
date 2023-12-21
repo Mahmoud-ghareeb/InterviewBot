@@ -5,4 +5,5 @@ custom_chat_input
 node_modules
 .env
 testenv
+nlp_semantic_analysis.py
 key.py
