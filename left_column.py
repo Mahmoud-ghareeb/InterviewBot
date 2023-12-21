@@ -61,5 +61,6 @@ def left_column():
     
     start=st.button("Start Learning!", use_container_width=True, key="quizbutton")
     if start:
+        st.session_state.questionType = option
         del st.session_state.messages
         refresh("quizbutton")
