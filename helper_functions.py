@@ -49,7 +49,7 @@ def set_bg_hack(main_bg):
 
 def set_page_container_style(
         max_width: int = 1400, max_width_100_percent: bool = False,
-        padding_top: int = 2, padding_right: int = 0, padding_left: int = 1, padding_bottom: int = 1,
+        padding_top: int = 0, padding_right: int = 0, padding_left: int = 1, padding_bottom: int = 1,
         # color: str = COLOR, background_color: str = BACKGROUND_COLOR,
     ):
     if max_width_100_percent:
@@ -66,7 +66,7 @@ def set_page_container_style(
                 padding-right: {padding_right}rem;
                 padding-left: {padding_left}rem;
                 padding-bottom: {padding_bottom}rem;
-                
+                margin-bottom: 2rem;
             }}
         </style>
             

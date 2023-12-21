@@ -3,126 +3,140 @@ from streamlit_custom_chat import ChatContainer
 from streamlit_custom_input import ChatInput
 from key_generator.key_generator import generate
 from helper_functions import set_bg_hack, set_page_container_style, refresh
-import numpy as np
-import pandas as pd
-from openai import OpenAI
-import yaml
 import json
-import os
-from dotenv import load_dotenv
+from backend_functions import get_evaluation, get_random_question, messageFromChatBot, config
+from left_column import left_column
+
+def main_app():
+    st.set_page_config(layout="wide")
+
+    set_bg_hack("assets/images/pastel3.jpg")
+
+    set_page_container_style()
+
+    titlecol1, titlecol2, titlecol3 = st.columns([8,5,3])
+
+    with titlecol1:
+        st.markdown('#')
+
+    with titlecol2:
+        st.title('Mentor Bot')
+        
+    with titlecol3:
+        # st.markdown(st.session_state.category)  
+        st.markdown('#')  
 
 
-config = yaml.load(open('./configs/config.star.yaml', 'r'),
-                   Loader=yaml.FullLoader)
+    # Initialize session variables
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-load_dotenv()
+    if "rateAnswer" not in st.session_state:
+        st.session_state.rateAnswer = False
+        
+    if "getQuestion" not in st.session_state:
+        st.session_state.getQuestion = False
+        
+    if "userAnswer" not in st.session_state:
+        st.session_state.userAnswer = ""
+        
+    if "responding" not in st.session_state:
+        st.session_state.responding = False
+        
+    if "skip" not in st.session_state:
+        st.session_state.skip = 0
 
-API_KEY = os.getenv('OPENAI_API_KEY')
+    # get a question to ask the user
+    new_question = get_random_question()
 
-client = OpenAI(
-    api_key=API_KEY
-)
-
-df = pd.read_csv('./data/star_questions.csv')
-
-
-def get_evaluation(content: str) -> dict:
-    """
-    Evaluate if the provided answer follows the STAR methodology
-
-    :param content: {'question': the question, 'answer': the answer}
-    :return: {"eval": your detailed evaluation of the answer}
-    """
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo-1106",
-        temperature=0,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system",
-              "content": config['prompts']['evaluation_prompt']},
-            {"role": "user", "content": content}
-        ]
-    )
-
-    return json.loads(response.choices[0].message.content)
+    # if there are no messages in the session add
+    if len(st.session_state.messages) == 0:
+        st.session_state.messages.append(
+            {"role": "assistant", "content": config['openning_message'], "key": 0})
+        
+        st.session_state.messages.append(
+            {"role": "assistant", "content": new_question, "key": 1})
+        
 
 
-def get_random_question():
-    """
-    get a random question from the csv file
+    col1, col2 = st.columns([2, 13])
 
-    :return: question 
-    """
-    random_question_idx = np.random.randint(0, 60)
-    data = df.iloc[random_question_idx]
+    with col1:
+        left_column()
+        
 
-    return data['Question']
-
-
-st.set_page_config(layout="wide")
-
-set_bg_hack("assets/images/pastel3.jpg")
-
-set_page_container_style()
-
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# after getting response from bot, add it to session and refresh
-
-
-def messageFromChatBot(message):
-    key = generate()
-    st.session_state.messages.append(
-        {"role": "assistant", "content": message, "key": "assistant-"+key.get_key()})
-    refresh('assistant')
-
-# st.sidebar.header("header")
-# st.sidebar.subheader(‘1.please chose which app you want to operate’)
-
-
-new_question = get_random_question()
-
-# if there are no messages in the session add this one
-if len(st.session_state.messages) == 0:
-    st.session_state.messages.append(
-        {"role": "assistant", "content": config['openning_message'], "key": 0})
-    st.session_state.messages.append(
-        {"role": "assistant", "content": new_question, "key": 1})
-
-col1, col2 = st.columns([2, 13])
-
-with col1:
-    st.markdown("#")
-    st.markdown("#")
-    st.markdown("#")
-    # button to redirect to quiz page (currently does nothing)
-    st.button("Take a Quiz", use_container_width=True)
-
-with col2:
-    # component that displays the messages
-    ChatContainer(messages=st.session_state.messages, key="chatcontainer")
-
-    # if st.button(label="assistant", key="assistant"):
-    #     key = generate()
-    #     st.session_state.messages.append({"role": "assistant", "content": "whatever","key":"assistant-"+key.get_key()})
-    #     refresh('assistant')
-
-    if answer := ChatInput(initialValue="", key="inputButton"):
+    with col2:
+        # component that displays the messages
+        ChatContainer(messages=st.session_state.messages, key="chatcontainer")
+        
         key = generate()
+        
+        # check if the agent is still streaming
+        if st.session_state.responding:
+            
+            # call function that recieves the agent stream
+            messageFromChatBot()
+            
+            # after the streaming is done reset the responding falg
+            st.session_state.responding = False
+            
+            # change the flag to true to make the agent ask a new question
+            st.session_state.getQuestion = True
+            
+            #reset the number of tokens to skip
+            st.session_state.skip = 0
+            
+        # check if the user submitted an answer to review
+        elif st.session_state.rateAnswer:
+            
+            # prepare the prompt for the agent
+            content = '{question: '+new_question+', answer: '+st.session_state.userAnswer+'}'
+            
+            # call the function that sends the prompt to the agent
+            get_evaluation(content)
+            
+            # reset user answer
+            st.session_state.userAnswer=""
+            
+            # reset rate flag
+            st.session_state.rateAnswer = False
+            
+            # make the question flag true to fetch a new question
+            st.session_state.getQuestion = True
+            
+            refresh('chatcontainer')
+            
+        # check if a new question should be displayed
+        if st.session_state.getQuestion:
+            
+            # call function to get a new question
+            new_question = get_random_question()
+            
+            # add the new question to the session state
+            st.session_state.messages.append(
+                {"role": "assistant", "content": new_question, "key": "assistant-"+key.get_key()})
+            
+            # reset question flag
+            st.session_state.getQuestion = False
+            
+            refresh('chatcontainer')
+            
+        # recieve input from the user
+        if answer := ChatInput(initialValue="", key="inputButton"):
+            
+            # add user message to chat history
+            st.session_state.messages.append(
+                {"role": "user", "content": answer, "key": "user-"+key.get_key()})
+            
+            st.session_state.userAnswer = answer
+            
+            # make the rate flag true to send the question to the agent
+            st.session_state.rateAnswer = True
+            
+            # reset question and responding flags
+            st.session_state.getQuestion = False
+            st.session_state.responding = False
+            
+            refresh('inputButton')
 
-        # Add user message to chat history
-        st.session_state.messages.append(
-            {"role": "user", "content": answer, "key": "user-"+key.get_key()})
-
-        content = '{question: '+new_question+', answer: '+answer+'}'
-        evaluation = get_evaluation(content)
-        st.session_state.messages.append(
-            {"role": "assistant", "content": evaluation['eval'], "key": "assistant-"+key.get_key()})
-
-        new_question = get_random_question()
-        st.session_state.messages.append(
-            {"role": "assistant", "content": new_question, "key": "assistant-"+key.get_key()})
-
-        refresh('inputButton')
+        
