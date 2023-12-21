@@ -8,7 +8,7 @@ from backend_functions import get_evaluation, get_random_question, messageFromCh
 from left_column import left_column
 
 
-def main_app():
+def main_app(questionType="Behavioural"):
     st.set_page_config(layout="wide")
 
     set_bg_hack("assets/images/pastel3.jpg")
@@ -45,6 +45,9 @@ def main_app():
 
     if "skip" not in st.session_state:
         st.session_state.skip = 0
+
+    if "questionType" not in st.session_state:
+        st.session_state.questionType = questionType
 
     if st.session_state.questionType == 'Technical':
 
@@ -147,7 +150,7 @@ def main_app():
         # if there are no messages in the session add
         if len(st.session_state.messages) == 0:
             st.session_state.messages.append(
-                {"role": "assistant", "content": config['technical_message'], "key": 0})
+                {"role": "assistant", "content": config['openning_message'], "key": 0})
 
             st.session_state.messages.append(
                 {"role": "assistant", "content": new_question, "key": 1})
