@@ -92,12 +92,15 @@ def start_page():
             st.markdown('<p class="welcome-font">Welcome!</p>', unsafe_allow_html=True)
             st.markdown('<p class="select-font">Please select the type of questions</p>', unsafe_allow_html=True)
             option = st.selectbox(
-            "Question type",
-            options=("Technical", "Behavioural"),
-            index=None,
-            key="typeSelectBox",
-            placeholder="Select type...",
-                )
+                "Question type",
+                options=("Technical", "Behavioural"),
+                index=None,
+                key="typeSelectBox",
+                placeholder="Select type...",
+                    )
+            
+            # st.session_state.questionType=option
+            
             if st.session_state["typeSelectBox"]=="Technical":
                 category = st.selectbox("Category", 
                              options=(categories),
@@ -109,6 +112,7 @@ def start_page():
             
             if option!=None and start:
                 st.session_state.questionType=option
+                
                 refresh("start")
         col2
 

@@ -16,7 +16,8 @@ def left_column():
                 color:rgb(61, 48, 96);
             }}
             .st-bb{{
-                background-color:rgb(240, 233, 255);
+                background-color: rgb(243, 238, 255);
+                border-color: black;
             }}
             </style>
             """,
@@ -61,5 +62,6 @@ def left_column():
     
     start=st.button("Start Learning!", use_container_width=True, key="quizbutton")
     if start:
+        st.session_state.questionType = option
         del st.session_state.messages
         refresh("quizbutton")
