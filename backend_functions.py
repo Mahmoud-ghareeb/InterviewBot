@@ -21,6 +21,7 @@ client = OpenAI(
 )
 
 df = pd.read_csv('./data/star_questions.csv')
+tech = pd.read_excel('./data/Data_analyst_question.xlsx')
 
 
 def get_evaluation(content: str) -> dict:
@@ -83,3 +84,46 @@ def messageFromChatBot():
                 st.session_state.skip += 1
     st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
     st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
+
+
+def get_technichal_question(selected_category):
+    """
+    get a random question from the csv file
+
+    :return: question 
+    """
+    category_data = tech[tech["Category"] == selected_category]
+    category_data = category_data.sample(frac=1).reset_index(drop=True)
+
+    return category_data.loc[0, "Question"]
+
+
+def get_technichal_evaluation(content: str) -> dict:
+    """
+    Evaluate if the provided answer follows the STAR methodology
+
+    :param content: {'question': the question, 'answer': the answer}
+    :return: {"eval": your detailed evaluation of the answer}
+    """
+    key = generate()
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": "", "key": "assistant-"+key.get_key()})
+
+    st.session_state.response = client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
+        temperature=0,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system",
+              "content": config['prompts']['tech_evaluation_prompt']},
+            {"role": "user", "content": content}
+        ],
+        stream=True
+    )
+
+    st.session_state.rateAnswer = False
+
+    st.session_state.responding = True
+
+    refresh("chatcontainer")
