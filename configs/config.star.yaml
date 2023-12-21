@@ -5,6 +5,10 @@ openning_message: |
   your answers must follow the STAR method
   The "STAR" methodology is a commonly used approach for answering behavioral interview questions. It stands for: Situation, Task, Action, and Result.
   Please answer the following questions
+technical_message: |
+  Hello! This is a tool for practicing a Technical interview questions
+  Try to answer the question as accurate as possible
+  our tool will give you a detaild feedback after you finish the answers
 prompts:
   initial_propmt: >-
     You are an Interviewer for data analyst interview
