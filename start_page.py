@@ -5,9 +5,6 @@ categories=["R", "Python", "Data Warehousing","Database","MySQL","Algorithms","D
 def start_page():
     set_bg_hack("assets\images\pastel3.jpg")
     with st.container():
-        # label = "Enter text here"
-        # st.text_input(label)
-
         
         st.markdown(
             f"""
@@ -99,15 +96,13 @@ def start_page():
                 placeholder="Select type...",
                     )
             
-            # st.session_state.questionType=option
-            
             if st.session_state["typeSelectBox"]=="Technical":
                 category = st.selectbox("Category", 
                              options=(categories),
                              key="categorySelectBox1")
-                # if "category" not in st.session_state:
+
                 st.session_state.category=category
-            # st.write('You selected:', option)
+                
             start=st.button(label="Submit", key="start")
             
             if option!=None and start:

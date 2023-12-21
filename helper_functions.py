@@ -11,7 +11,6 @@ def set_bg_hack(main_bg):
     '''
     # set bg name
     main_bg_ext = "jpg"
-        
     st.markdown(
          f"""
          <style>

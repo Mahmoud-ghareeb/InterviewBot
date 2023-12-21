@@ -74,16 +74,18 @@ def messageFromChatBot():
 
     :return: nothing 
     """
+    
     for chunk in st.session_state.response:
         if chunk.choices[0].delta.content is not None:
-            if st.session_state.skip > 4:
+            if chunk.choices[0].delta.content not in '{\"eval\":\"':
                 st.session_state.messages[-1]["content"] += chunk.choices[0].delta.content
                 time.sleep(0.01)
                 refresh("chatcontainer")
             else:
-                st.session_state.skip += 1
+                st.session_state.skip += chunk.choices[0].delta.content
     st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
     st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
+    # st.session_state.skip=""
 
 
 def get_technichal_question(selected_category):

@@ -9,26 +9,15 @@ from left_column import left_column
 
 
 def main_app(questionType="Behavioural"):
-    st.set_page_config(layout="wide")
 
     set_bg_hack("assets/images/pastel3.jpg")
 
     set_page_container_style()
 
-    titlecol1, titlecol2, titlecol3 = st.columns([8, 5, 3])
-
-    with titlecol1:
-        st.markdown('#')
-
-    with titlecol2:
-        st.title('Mentor Bot')
-
-    with titlecol3:
-        # st.markdown(st.session_state.category)
-        st.markdown('#')
 
     # Initialize session variables
     if "messages" not in st.session_state:
+        # st.set_page_config(layout="wide")
         st.session_state.messages = []
 
     if "rateAnswer" not in st.session_state:
@@ -44,11 +33,22 @@ def main_app(questionType="Behavioural"):
         st.session_state.responding = False
 
     if "skip" not in st.session_state:
-        st.session_state.skip = 0
+        st.session_state.skip = ""
 
     if "questionType" not in st.session_state:
         st.session_state.questionType = questionType
 
+    titlecol1, titlecol2, titlecol3 = st.columns([8, 5, 3])
+
+    with titlecol1:
+        st.markdown('#')
+
+    with titlecol2:
+        st.title('Mentor Bot')
+
+    with titlecol3:
+        # st.markdown(st.session_state.category)
+        st.markdown('#')
     if st.session_state.questionType == 'Technical':
 
         # get a question to ask the user
@@ -87,20 +87,20 @@ def main_app(questionType="Behavioural"):
                 st.session_state.getQuestion = True
 
                 # reset the number of tokens to skip
-                st.session_state.skip = 0
+                st.session_state.skip = ""
 
             # check if the user submitted an answer to review
-            elif st.session_state.rateAnswer:
+            elif st.session_state.rateAnswer and st.session_state.userAnswer is not None:
 
                 # prepare the prompt for the agent
-                content = '{question: '+new_question + \
+                content = '{question: '+st.session_state.messages[-1]["content"] + \
                     ', answer: '+st.session_state.userAnswer+'}'
 
                 # call the function that sends the prompt to the agent
                 get_technichal_evaluation(content)
 
                 # reset user answer
-                st.session_state.userAnswer = ""
+                st.session_state.userAnswer = None
 
                 # reset rate flag
                 st.session_state.rateAnswer = False
@@ -123,6 +123,7 @@ def main_app(questionType="Behavioural"):
 
                 # reset question flag
                 st.session_state.getQuestion = False
+                st.session_state.userAnswer = None
 
                 refresh('chatcontainer')
 
@@ -141,7 +142,7 @@ def main_app(questionType="Behavioural"):
                 # reset question and responding flags
                 st.session_state.getQuestion = False
                 st.session_state.responding = False
-
+                answer=None
                 refresh('inputButton')
 
     else:
@@ -181,7 +182,7 @@ def main_app(questionType="Behavioural"):
                 st.session_state.getQuestion = True
 
                 # reset the number of tokens to skip
-                st.session_state.skip = 0
+                st.session_state.skip = ""
 
             # check if the user submitted an answer to review
             elif st.session_state.rateAnswer:
@@ -194,7 +195,7 @@ def main_app(questionType="Behavioural"):
                 get_evaluation(content)
 
                 # reset user answer
-                st.session_state.userAnswer = ""
+                st.session_state.userAnswer = None
 
                 # reset rate flag
                 st.session_state.rateAnswer = False
@@ -216,6 +217,7 @@ def main_app(questionType="Behavioural"):
 
                 # reset question flag
                 st.session_state.getQuestion = False
+                st.session_state.userAnswer = None
 
                 refresh('chatcontainer')
 
@@ -234,7 +236,7 @@ def main_app(questionType="Behavioural"):
                 # reset question and responding flags
                 st.session_state.getQuestion = False
                 st.session_state.responding = False
-
+                answer=None
                 refresh('inputButton')
 
 
