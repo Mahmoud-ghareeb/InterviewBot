@@ -4,7 +4,7 @@ from streamlit_custom_input import ChatInput
 from key_generator.key_generator import generate
 from helper_functions import set_bg_hack, set_page_container_style, refresh
 import json
-from backend_functions import get_evaluation, get_random_question, messageFromChatBot, config
+from backend_functions import get_evaluation, get_random_question, get_technichal_question, get_technichal_evaluation, messageFromChatBot, config
 from left_column import left_column
 
 
@@ -52,7 +52,7 @@ def main_app(questionType="Behavioural"):
     if st.session_state.questionType == 'Technical':
 
         # get a question to ask the user
-        new_question = get_random_question()
+        new_question = get_technichal_question(st.session_state.category)
 
         # if there are no messages in the session add
         if len(st.session_state.messages) == 0:
@@ -97,7 +97,7 @@ def main_app(questionType="Behavioural"):
                     ', answer: '+st.session_state.userAnswer+'}'
 
                 # call the function that sends the prompt to the agent
-                get_evaluation(content)
+                get_technichal_evaluation(content)
 
                 # reset user answer
                 st.session_state.userAnswer = ""
@@ -114,7 +114,8 @@ def main_app(questionType="Behavioural"):
             if st.session_state.getQuestion:
 
                 # call function to get a new question
-                new_question = get_random_question()
+                new_question = get_technichal_question(
+                    st.session_state.category)
 
                 # add the new question to the session state
                 st.session_state.messages.append(
