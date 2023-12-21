@@ -8,13 +8,13 @@ import yaml
 from dotenv import load_dotenv
 from helper_functions import refresh
 import os
-
+from key import API_KEY
 config = yaml.load(open('./configs/config.star.yaml', 'r'),
                    Loader=yaml.FullLoader)
 
 load_dotenv()
 
-API_KEY = os.getenv('OPENAI_API_KEY')
+# API_KEY = os.getenv('OPENAI_API_KEY')
 
 client = OpenAI(
     api_key=API_KEY
