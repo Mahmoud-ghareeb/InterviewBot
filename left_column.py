@@ -1,6 +1,6 @@
 import streamlit as st
 from helper_functions import refresh
-categories = ["R", "Python", "Data Warehousing",
+categories = ["R", "Python", "Data Warehouse",
               "Database", "MySQL", "Algorithms", "Data Structure"]
 questionTypes = ["Technical", "Behavioural"]
 # def onChange(option):
@@ -68,5 +68,15 @@ def left_column():
                       use_container_width=True, key="quizbutton")
     if start:
         st.session_state.questionType = option
-        del st.session_state.messages
+        # st.session_state.rateAnswer=False
+        # st.session_state.responding=False
+        # st.session_state.getQuestion=False
+        st.session_state.skip=""
+        
+        # del st.session_state.messages
+        st.session_state.messages=[]
+        st.session_state.userAnswer=None
+        # del st.session_state["inputButton"]
+        # del st.session_state["chatcontainer"]
         refresh("quizbutton")
+        
