@@ -8,19 +8,20 @@ import yaml
 from dotenv import load_dotenv
 from helper_functions import refresh
 import os
-from key import API_KEY
+
 config = yaml.load(open('./configs/config.star.yaml', 'r'),
                    Loader=yaml.FullLoader)
 
 load_dotenv()
 
-# API_KEY = os.getenv('OPENAI_API_KEY')
+API_KEY = os.getenv('OPENAI_API_KEY')
 
 client = OpenAI(
     api_key=API_KEY
 )
 
 df = pd.read_csv('./data/star_questions.csv')
+
 
 def get_evaluation(content: str) -> dict:
     """
@@ -30,10 +31,10 @@ def get_evaluation(content: str) -> dict:
     :return: {"eval": your detailed evaluation of the answer}
     """
     key = generate()
-    
+
     st.session_state.messages.append(
-            {"role": "assistant", "content": "", "key": "assistant-"+key.get_key()})
-        
+        {"role": "assistant", "content": "", "key": "assistant-"+key.get_key()})
+
     st.session_state.response = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         temperature=0,
@@ -43,13 +44,13 @@ def get_evaluation(content: str) -> dict:
               "content": config['prompts']['evaluation_prompt']},
             {"role": "user", "content": content}
         ],
-        stream=True 
+        stream=True
     )
-    
-    st.session_state.rateAnswer=False
-    
+
+    st.session_state.rateAnswer = False
+
     st.session_state.responding = True
-    
+
     refresh("chatcontainer")
 
 
@@ -65,7 +66,6 @@ def get_random_question():
     return data['Question']
 
 
-
 def messageFromChatBot():
     """
     get each chunk streamed from the API and add it to the message then refresh except for the first
@@ -75,11 +75,11 @@ def messageFromChatBot():
     """
     for chunk in st.session_state.response:
         if chunk.choices[0].delta.content is not None:
-            if st.session_state.skip>4:
-                st.session_state.messages[-1]["content"]+=chunk.choices[0].delta.content
+            if st.session_state.skip > 4:
+                st.session_state.messages[-1]["content"] += chunk.choices[0].delta.content
                 time.sleep(0.01)
                 refresh("chatcontainer")
             else:
-                st.session_state.skip+=1
-    st.session_state.messages[-1]["content"]=st.session_state.messages[-1]["content"][:-1]
-    st.session_state.messages[-1]["content"]=st.session_state.messages[-1]["content"][:-1]
+                st.session_state.skip += 1
+    st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
+    st.session_state.messages[-1]["content"] = st.session_state.messages[-1]["content"][:-1]
