@@ -16,7 +16,8 @@ def left_column():
                 color:rgb(61, 48, 96);
             }}
             .st-bb{{
-                background-color:rgb(240, 233, 255);
+                background-color: rgb(243, 238, 255);
+                border-color: black;
             }}
             </style>
             """,
