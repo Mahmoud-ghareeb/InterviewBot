@@ -22,11 +22,17 @@ After activating the virtual environment run the following command
 streamlit run router.py
 ```
 
-Welcome page
-![selecting - Made with Clipchamp](https://github.com/Farah-S/InterviewBot/assets/96240223/5aab2bde-73f3-415b-a308-12a2ce92cb6f)
+## Welcome page
+Below is a gif that shows the first page that appears to the user (takes a minute to load)
 
-Star question
-![star - Made with Clipchamp](https://github.com/Farah-S/InterviewBot/assets/96240223/5f23dd8d-da3c-4a3c-b90f-a6a5bcd0c87f)
+![selecting](https://github.com/Farah-S/InterviewBot/blob/main/assets/selecting.gif)
 
-Changing category
-![changing_category - Made with Clipchamp](https://github.com/Farah-S/InterviewBot/assets/96240223/91663fff-238d-4864-8e5e-7a46095d33a5)
+## Star question
+Below is a gif that shows a STAR question and response (takes a minute to load)
+
+![star](https://github.com/Farah-S/InterviewBot/blob/main/assets/star.gif)
+
+## Changing category
+Below is a gif that shows changing the type of question and category (takes a minute to load)
+
+![changing_category](https://github.com/Farah-S/InterviewBot/blob/main/assets/changing_category.gif)
