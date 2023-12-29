@@ -23,9 +23,16 @@ streamlit run router.py
 ```
 
 ## Welcome page
-![selecting](https://github.com/Farah-S/InterviewBot/assets/96240223/c89fe1bc-7bb1-491a-a02e-7135f0a69e79)
+Below is a gif that shows the first page that appears to the user (takes a minute to load)
+
+![selecting](https://github.com/Farah-S/InterviewBot/blob/main/assets/selecting.gif)
 
 ## Star question
-![star](https://github.com/Farah-S/InterviewBot/assets/96240223/9b490ff5-76ab-41eb-accb-256a3efcb23c)
+Below is a gif that shows a STAR question and response (takes a minute to load)
+
+![star](https://github.com/Farah-S/InterviewBot/blob/main/assets/star.gif)
 
 ## Changing category
+Below is a gif that shows changing the type of question and category (takes a minute to load)
+
+![changing_category](https://github.com/Farah-S/InterviewBot/blob/main/assets/changing_category.gif)
