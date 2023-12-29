@@ -25,6 +25,7 @@ streamlit run router.py
 ## Welcome page
 ![selecting](https://github.com/Farah-S/InterviewBot/assets/96240223/c89fe1bc-7bb1-491a-a02e-7135f0a69e79)
 
-Star question
+## Star question
+![star](https://github.com/Farah-S/InterviewBot/assets/96240223/9b490ff5-76ab-41eb-accb-256a3efcb23c)
 
-Changing category
+## Changing category
